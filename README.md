@@ -20,6 +20,8 @@ GLITCHLAB takes a development task (GitHub issue, local YAML, or interactive pro
 | 🐛 **Reroute** | Debugger | Claude | Quiet gremlin (appears when things break) |
 | 🔒 **Firewall Frankie** | Security | Gemini | Cartoon cop with magnifying glass |
 | 📦 **Semver Sam** | Release | Gemini | Accountant with neon sneakers |
+| ⚡ **Benchmark Bruno** | Optimizer | Gemini | Stopwatch in one hand, flame graph in the other |
+| 💀 **Zero-Day Ella** | Red Team | Gemini | She does not knock. She just gets in. |
 
 ---
 

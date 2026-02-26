@@ -47,7 +47,9 @@ from glitchlab.agents import AgentContext
 from glitchlab.agents.archivist import ArchivistAgent
 from glitchlab.agents.debugger import DebuggerAgent
 from glitchlab.agents.implementer import ImplementerAgent
+from glitchlab.agents.optimizer import OptimizerAgent
 from glitchlab.agents.planner import PlannerAgent
+from glitchlab.agents.red_team import RedTeamAgent
 from glitchlab.agents.release import ReleaseAgent
 from glitchlab.agents.security import SecurityAgent
 from glitchlab.config_loader import GlitchLabConfig, load_config
@@ -183,6 +185,22 @@ class TaskState(BaseModel):
                 "files_modified": self.files_modified,
                 "implementation_summary": self.implementation_summary,
                 "version_bump": self.version_bump,
+            }
+
+        elif for_agent == "optimizer":
+            return {
+                **base,
+                "files_modified": self.files_modified,
+                "files_created": self.files_created,
+                "implementation_summary": self.implementation_summary,
+            }
+
+        elif for_agent == "red_team":
+            return {
+                **base,
+                "files_modified": self.files_modified,
+                "files_created": self.files_created,
+                "implementation_summary": self.implementation_summary,
             }
 
         return base
@@ -759,6 +777,8 @@ class Controller:
         self.security = SecurityAgent(self.router)
         self.release = ReleaseAgent(self.router)
         self.archivist = ArchivistAgent(self.router)
+        self.optimizer = OptimizerAgent(self.router)
+        self.red_team = RedTeamAgent(self.router)
 
         # Run state (reset per-task)
         self._state: TaskState | None = None

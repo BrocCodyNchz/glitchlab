@@ -12,6 +12,8 @@ routing:
   security: "gemini/gemini-3-flash-preview"
   release: "gemini/gemini-3-flash-preview"
   archivist: "gemini/gemini-3-flash-preview"
+  optimizer: "gemini/gemini-3-flash-preview"
+  red_team: "gemini/gemini-3-flash-preview"
 
 fallbacks:
   high_tier: "openai/gpt-5.2"
