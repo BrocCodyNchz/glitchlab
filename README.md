@@ -1,7 +1,10 @@
-# **⚡ GLITCHLAB** v2.2.0
+# **⚡ GLITCHLAB** v3.0.0
 
-**The Agentic SOC/NOC Engine — Build Weird. Ship Clean.**  
-A local, repo-agnostic, multi-agent engine for Security Operations Center (SOC) and Network Operations Center (NOC) workflows. Evolves runbooks, playbooks, and configs under strict governance.
+**The Agentic SOC/NOC Engine — Build Weird. Ship Clean.**
+
+> **SOC/NOC Ops Revamp** — This is a specialized fork focused on Security Operations Center (SOC) and Network Operations Center (NOC) workflows. The original [glitchlab](https://github.com/adjective-rob/glitchlab) by **Adjective LLC** is a general-purpose agentic development engine for repo-agnostic code evolution. This fork retains the core architecture while redesigning all agents for incident response, runbook automation, playbook management, and NOC performance analysis.
+
+A local, repo-agnostic, multi-agent engine for SOC and NOC workflows. Evolves runbooks, playbooks, and configs under strict governance.
 
 ---
 
@@ -95,7 +98,7 @@ GLITCHLAB is autonomous between checkpoints, but you stay in control:
 
 The **Controller** is the brainstem. It never writes code directly; it only coordinates.
 
-### **Project Structure (v2.2.0)**
+### **Project Structure (v3.0.0)**
 
 `glitchlab/`  
 `├── cli.py              # CLI interface (typer)`  
@@ -126,4 +129,4 @@ The **Controller** is the brainstem. It never writes code directly; it only coor
 
 ## **License**
 
-MIT — Adjective LLC
+MIT — Adjective LLC (original). This SOC/NOC revamp maintains the same license.
