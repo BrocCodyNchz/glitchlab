@@ -1,11 +1,11 @@
 """
-📚 Archivist Nova — Docs + ADR Writer
+📚 Archivist Nova — SOC/NOC Documenter
 
-Captures design decisions after successful PRs.
-Updates architecture notes.
-Keeps future-you sane.
+Captures incident post-mortems, runbook updates, and playbook changes.
+Writes incident reports and keeps runbook knowledge current.
+Supports SOC/NOC audit and knowledge base maintenance.
 
-Energy: library robot with LED eyes.
+Energy: library robot with LED eyes and a war room whiteboard.
 """
 
 from __future__ import annotations
@@ -23,21 +23,22 @@ from glitchlab.router import RouterResponse
 class ArchivistAgent(BaseAgent):
     role = "archivist"
 
-    system_prompt = """You are Archivist Nova, the documentation engine inside GLITCHLAB.
+    system_prompt = """You are Archivist Nova, the SOC/NOC documentation engine inside GLITCHLAB.
 
-You are invoked AFTER a successful implementation to capture what was done and why.
-Your job is to produce documentation artifacts that keep the project's knowledge current.
+You are invoked AFTER a successful incident response or runbook change.
+Your job is to produce documentation: incident post-mortems, runbook updates,
+playbook notes, and knowledge base entries for SOC/NOC teams.
 
 You MUST respond with valid JSON only.
 
 Output schema:
 {
   "adr": {
-    "title": "ADR-NNN: Short descriptive title",
+    "title": "ADR-NNN: Short descriptive title (or Incident Report NNN)",
     "status": "accepted",
-    "context": "What situation or problem prompted this change",
+    "context": "What incident or situation prompted this change",
     "decision": "What was decided and implemented",
-    "consequences": "What this means going forward — tradeoffs, new constraints, etc.",
+    "consequences": "What this means going forward — runbook impact, new procedures",
     "alternatives_considered": ["Alternative 1", "Alternative 2"]
   },
   "doc_updates": [
@@ -48,17 +49,17 @@ Output schema:
       "description": "What this doc update covers"
     }
   ],
-  "architecture_notes": "Brief note about any architectural implications",
+  "architecture_notes": "Brief note about SOC/NOC process or tooling implications",
   "should_write_adr": true
 }
 
 Rules:
-- Write ADRs for any change that affects architecture, public API, or introduces new patterns.
-- Skip ADRs for trivial changes (typo fixes, formatting, simple bug fixes).
-- ADRs should be useful to someone reading them 6 months from now.
-- Documentation should be concise and factual.
+- Write ADRs/post-mortems for significant incidents, runbook changes, or new playbook patterns.
+- Skip for trivial changes (typo fixes, formatting, simple config tweaks).
+- Post-mortems should be useful for incident retrospectives 6 months from now.
+- Documentation should be concise and actionable for SOC/NOC responders.
 - Use the project's existing doc style if visible in context.
-- Architecture notes should highlight cross-cutting concerns.
+- Highlight lessons learned and runbook improvements.
 """
 
     def build_messages(self, context: AgentContext) -> list[dict[str, str]]:
@@ -80,9 +81,9 @@ Rules:
                 f"{step.get('description', 'no description')}"
             )
 
-        user_content = f"""A task has been successfully completed. Document it.
+        user_content = f"""An incident response or runbook change has been completed. Document it.
 
-Task: {context.objective}
+Incident/Task: {context.objective}
 Task ID: {context.task_id}
 Mode: {state.get('mode', 'evolution')}
 Risk level: {state.get('risk_level', 'unknown')}
@@ -109,7 +110,7 @@ Produce documentation artifacts as JSON. Set should_write_adr=false for trivial 
 
         if content.startswith("```"):
             lines = content.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
+            lines = [ln for ln in lines if not ln.strip().startswith("```")]
             content = "\n".join(lines)
 
         try:

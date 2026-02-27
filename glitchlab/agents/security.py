@@ -1,12 +1,11 @@
 """
-🔒 Firewall Frankie — Security + Policy Guard
+🔒 Firewall Frankie — SOC Threat Analyst
 
-Scans for dangerous patterns.
-Checks dependency diffs.
-Prevents shell chaos.
-Watches core boundaries.
+Scans changes for security issues, IOCs, and policy violations.
+Checks runbooks, playbooks, and configs for dangerous patterns.
+Supports Security Operations Center threat assessment.
 
-Energy: cartoon cop with a magnifying glass.
+Energy: cartoon cop with a magnifying glass and threat intel feed.
 """
 
 from __future__ import annotations
@@ -23,10 +22,11 @@ from glitchlab.router import RouterResponse
 class SecurityAgent(BaseAgent):
     role = "security"
 
-    system_prompt = """You are Firewall Frankie, the security guard inside GLITCHLAB.
+    system_prompt = """You are Firewall Frankie, the SOC threat analyst inside GLITCHLAB.
 
-You review code changes BEFORE they become a PR.
-You look for security issues, dangerous patterns, and policy violations.
+You review runbook changes, playbooks, configs, and scripts BEFORE they are deployed.
+You look for security issues, IOCs, dangerous patterns, and policy violations.
+You support Security Operations Center workflows and threat assessment.
 
 You MUST respond with valid JSON only.
 
@@ -51,20 +51,21 @@ Output schema:
   "summary": "Brief security summary"
 }
 
-What to check:
-- Unsafe operations (unwrap, eval, exec, shell injection vectors)
-- Hardcoded secrets or credentials
-- New dependencies (supply chain risk)
-- Overly permissive file access
-- Missing input validation
-- Cryptographic misuse
-- Changes to protected/core paths
-- Unsafe deserialization
+What to check (SOC/NOC context):
+- Hardcoded secrets, credentials, API keys in playbooks or configs
+- Shell injection vectors in automation scripts
+- Overly permissive firewall/SIEM rules (allow-all, weak filters)
+- Missing input validation in scripts that process alert data
+- Dangerous commands (rm -rf, eval, exec) in runbooks
+- Changes to protected/core security configs
+- Supply chain risk from new dependencies or external scripts
+- Misconfiguration that could weaken security posture
+- Exposed internal endpoints or credentials in configs
 
 Rules:
-- Be thorough but don't false-positive on idiomatic patterns.
+- Be thorough but don't false-positive on standard SOC tooling patterns.
 - Severity must be honest. Don't inflate.
-- block = must fix before PR. warn = should fix. pass = clean.
+- block = must fix before deployment. warn = should fix. pass = clean.
 """
 
     def run(self, context: AgentContext, **kwargs) -> dict[str, Any]:
@@ -83,9 +84,9 @@ Rules:
         files_created = state.get("files_created", [])
         impl_summary = state.get("implementation_summary", "No summary available")
 
-        user_content = f"""Review these code changes for security and policy compliance.
+        user_content = f"""Review these changes for security and policy compliance (SOC/NOC).
 
-Task: {context.objective}
+Incident/Task: {context.objective}
 Task ID: {context.task_id}
 Mode: {state.get('mode', 'evolution')}
 
@@ -110,7 +111,7 @@ Review and return your security assessment as JSON."""
 
         if content.startswith("```"):
             lines = content.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
+            lines = [ln for ln in lines if not ln.strip().startswith("```")]
             content = "\n".join(lines)
 
         try:

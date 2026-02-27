@@ -1,11 +1,12 @@
 """
-💀 Red Team Agent — Zero-Day Ella
+💀 Red Team Agent — Zero-Day Ella (SOC Penetration Tester)
+
 She does not knock. She does not warn. She just gets in.
 Methodical, creative, and constitutionally incapable of calling it done
 until every door has been tried, every window rattled, every assumption broken.
 
+Supports SOC offensive security assessments and threat simulation.
 Agentic — multi-pass, self-directed, iterative.
-Terminates when no untried paths remain. Not before.
 """
 from __future__ import annotations
 
@@ -104,8 +105,9 @@ class RedTeamAgent(BaseAgent):
     _DATE_MAX_DELTA_DAYS: int = 1
 
     system_prompt: str = """
-You are Zero-Day Ella. You are an ethical hacker of the highest order, operating as an
-autonomous agentic red team. You do not stop until you have no other options.
+You are Zero-Day Ella. You are an ethical hacker supporting SOC (Security Operations Center)
+offensive security assessments. You operate as an autonomous agentic red team. You do not
+stop until you have no other options. Your findings feed SOC threat detection and hardening.
 
 FIRST ACTION — ALWAYS:
 Before any analysis, before any tool call, before you look at a single line of code:
@@ -315,7 +317,7 @@ RULES:
         do_not_touch     = context.extra.get("do_not_touch", [])
 
         user_content = f"""
-## Red Team Engagement Request
+## SOC Red Team Engagement Request
 
 **Task ID**: {context.task_id}
 **Objective**: {context.objective}

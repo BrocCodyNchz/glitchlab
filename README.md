@@ -1,13 +1,13 @@
 # **⚡ GLITCHLAB** v2.2.0
 
-**The Agentic Dev Engine — Build Weird. Ship Clean.**  
- A local, repo-agnostic, multi-agent development engine that evolves codebases under strict governance.
+**The Agentic SOC/NOC Engine — Build Weird. Ship Clean.**  
+A local, repo-agnostic, multi-agent engine for Security Operations Center (SOC) and Network Operations Center (NOC) workflows. Evolves runbooks, playbooks, and configs under strict governance.
 
 ---
 
 ## **What It Does**
 
-GLITCHLAB takes a development task (GitHub issue, local YAML, or interactive prompt), breaks it into an execution plan, implements changes, runs tests, fixes failures, scans for security issues, and opens a PR—all orchestrated locally with deterministic control.
+GLITCHLAB takes a security incident, alert, or NOC ticket (GitHub issue, local YAML, or interactive prompt), breaks it into a response plan, implements runbook changes, validates execution, fixes failures, scans for security issues, and opens a PR—all orchestrated locally with deterministic control.
 
 ---
 
@@ -15,13 +15,14 @@ GLITCHLAB takes a development task (GitHub issue, local YAML, or interactive pro
 
 | Agent | Role | Model | Energy |
 | ----- | ----- | ----- | ----- |
-| 🧠 **Professor Zap** | Planner | Gemini | Manic genius with whiteboard chaos |
-| 🔧 **Patch** | Implementer | Claude | Hoodie-wearing prodigy |
-| 🐛 **Reroute** | Debugger | Claude | Quiet gremlin (appears when things break) |
-| 🔒 **Firewall Frankie** | Security | Gemini | Cartoon cop with magnifying glass |
-| 📦 **Semver Sam** | Release | Gemini | Accountant with neon sneakers |
-| ⚡ **Benchmark Bruno** | Optimizer | Gemini | Stopwatch in one hand, flame graph in the other |
-| 💀 **Zero-Day Ella** | Red Team | Gemini | She does not knock. She just gets in. |
+| 🧠 **Professor Zap** | Planner | Gemini | SOC/NOC incident planner — war room whiteboard chaos |
+| 🔧 **Patch** | Implementer | Gemini | Response executor — playbooks, configs, firewall rules |
+| 🐛 **Reroute** | Debugger | Gemini | Incident triage — fixes failed runbook steps |
+| 🔒 **Firewall Frankie** | Security | Gemini | SOC threat analyst — magnifying glass + threat intel |
+| 📦 **Semver Sam** | Release | Gemini | Change manager — change control, changelog |
+| 📚 **Archivist Nova** | Archivist | Gemini | Documenter — incident post-mortems, runbook docs |
+| ⚡ **Benchmark Bruno** | Optimizer | Gemini | NOC performance analyst — latency, throughput, capacity |
+| 💀 **Zero-Day Ella** | Red Team | Gemini | SOC penetration tester — she just gets in. |
 
 ---
 
@@ -66,11 +67,11 @@ Interactive mode:
 
 ## **Task Sources**
 
-* **GitHub Issues:** Label issues with `glitchlab` and use the provided issue template.
+* **GitHub Issues:** Label issues with `glitchlab` for incident/alert tickets. Use the provided issue template.
 
-* **Local YAML Tasks:** Create files under `.glitchlab/tasks/queue/next.yaml`.
+* **Local YAML Tasks:** Create files under `.glitchlab/tasks/queue/next.yaml` for runbook changes or NOC tickets.
 
-* **Interactive:** Just describe what you want. GLITCHLAB plans, you approve, it executes.
+* **Interactive:** Describe the incident, alert, or change. GLITCHLAB plans, you approve, it executes.
 
 ---
 

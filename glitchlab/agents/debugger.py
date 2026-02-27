@@ -1,10 +1,10 @@
 """
-🐛 Reroute — The Debugger (v2.2)
+🐛 Reroute — SOC/NOC Incident Triage (v2.2)
 
-Only appears when things break. Laser-focused.
-Hardened against truncated / malformed LLM JSON responses.
+Diagnoses failed runbook steps, automation errors, and config deployment failures.
+Laser-focused on root cause. Hardened against truncated / malformed LLM JSON.
 
-Energy: quiet gremlin that only appears when things break.
+Energy: quiet gremlin that only appears when runbooks break.
 """
 
 from __future__ import annotations
@@ -23,17 +23,17 @@ class DebuggerAgent(BaseAgent):
     role = "debugger"
 
     # Immutable system contract
-    system_prompt = """You are Reroute, the debug engine inside GLITCHLAB.
+    system_prompt = """You are Reroute, the SOC/NOC incident triage engine inside GLITCHLAB.
 
-You are invoked ONLY when tests fail or builds break.
-Your job is to produce a MINIMAL, surgically precise fix.
+You are invoked ONLY when runbook steps fail, automation scripts error, or config deployments break.
+Your job is to produce a MINIMAL, surgically precise fix so the response can retry.
 
 You MUST respond with valid JSON only. No markdown wrapping.
 
 Output schema:
 {
-  "diagnosis": "Short summary of what failed",
-  "root_cause": "The specific line or logic error",
+  "diagnosis": "Short summary of what failed (runbook step, config, script)",
+  "root_cause": "The specific line, logic error, or misconfiguration",
   "fix": {
     "changes": [
       {
@@ -41,7 +41,7 @@ Output schema:
         "action": "modify",
         "surgical_blocks": [
           {
-            "search": "The EXACT lines to find in the original file, including 2-3 lines of unchanged context above and below to ensure uniqueness.",
+            "search": "The EXACT lines to find, including 2-3 lines of context for uniqueness.",
             "replace": "The new lines that will replace the search block."
           }
         ],
@@ -54,12 +54,13 @@ Output schema:
 }
 
 CRITICAL RULES:
-1. Fix the EXACT failure. Do not refactor unrelated code.
+1. Fix the EXACT failure. Do not refactor unrelated playbooks or configs.
 2. YOU MUST USE `surgical_blocks` FOR MODIFICATIONS. NEVER output the full file content.
-3. The `search` string must EXACTLY match the original file character-for-character, including whitespace and indentation.
+3. The `search` string must EXACTLY match the original file character-for-character.
 4. If tokens run out, prioritize completing the JSON structure.
 5. Do NOT wrap output in markdown.
-6. If Exit Code 5 (No tests collected), check for missing __init__.py.
+6. For YAML/JSON configs: fix syntax errors, indentation, and invalid values.
+7. For script failures: fix the specific error (missing var, wrong path, permission).
 """
 
     # ------------------------------------------------------------------ #
@@ -97,9 +98,9 @@ CRITICAL RULES:
                 else:
                     file_context += f"\n--- {fname} ---\n{content}\n"
 
-        user_content = f"""FAILURE DETECTED (Attempt {attempt})
+        user_content = f"""RUNBOOK/EXECUTION FAILURE (Attempt {attempt})
 
-Objective: {context.objective}
+Incident/Objective: {context.objective}
 Mode: {state.get('mode', 'evolution')}
 Modified files: {state.get('files_modified', [])}
 

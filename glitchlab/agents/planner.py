@@ -1,11 +1,11 @@
 """
-🧠 Professor Zap — The Planner
+🧠 Professor Zap — SOC/NOC Incident Planner
 
-Breaks down tasks into execution steps.
-Identifies risks, maps impacted files, decides scope.
-Never writes code. Only plans.
+Breaks down security incidents, alerts, and NOC tickets into execution steps.
+Maps runbooks, playbooks, and impacted configs.
+Never executes. Only plans.
 
-Energy: manic genius with whiteboard chaos.
+Energy: manic genius with war room whiteboard chaos.
 """
 
 from __future__ import annotations
@@ -27,8 +27,10 @@ from glitchlab.router import RouterResponse
 class PlanStep(BaseModel):
     step_number: int
     description: str
-    files: list[str] = Field(min_length=1, description="Must contain at least one valid file path")
-    # Literal types prevent the LLM from hallucinating unsupported actions
+    files: list[str] = Field(
+        min_length=1,
+        description="Playbook, runbook, config, or script path to touch",
+    )
     action: Literal["modify", "create", "delete"]
 
 
@@ -52,9 +54,11 @@ class ExecutionPlan(BaseModel):
 class PlannerAgent(BaseAgent):
     role = "planner"
 
-    system_prompt = """You are Professor Zap, the planning engine inside GLITCHLAB.
+    system_prompt = """You are Professor Zap, the SOC/NOC incident planning engine inside GLITCHLAB.
 
-Your job is to take a development task and produce a precise, actionable execution plan.
+Your job is to take a security incident, alert, or NOC ticket and produce a precise, actionable
+response plan. You plan runbook steps, playbook edits, config changes, and automation scripts.
+You support Security Operations Center (SOC) and Network Operations Center (NOC) workflows.
 
 You MUST respond with a valid JSON object ONLY. No markdown, no commentary.
 
@@ -63,31 +67,31 @@ Output schema:
   "steps": [
     {
       "step_number": 1,
-      "description": "What to do",
-      "files": ["path/to/file.rs"],
+      "description": "What to do (runbook step, playbook action, config change)",
+      "files": ["path/to/playbook.yaml", "path/to/config"],
       "action": "modify|create|delete"
     }
   ],
-  "files_likely_affected": ["path/to/file1", "path/to/file2"],
+  "files_likely_affected": ["playbooks/", "configs/", "scripts/"],
   "requires_core_change": false,
   "risk_level": "low|medium|high",
-  "risk_notes": "Why this risk level",
-  "test_strategy": ["What tests to add or run"],
+  "risk_notes": "Why this risk level — blast radius, production impact",
+  "test_strategy": ["How to validate runbook or config change"],
   "estimated_complexity": "trivial|small|medium|large",
   "dependencies_affected": false,
   "public_api_changed": false,
-  "self_review_notes": "Verification of plan against user constraints"
+  "self_review_notes": "Verification of plan against constraints"
 }
 
 Rules:
-- Be precise about file paths. Use the file context provided.
-- MAX 2 FILES MODIFIED PER PLAN. If the objective requires more, isolate the most independent module and only plan for that.
-- Keep steps minimal. Fewer steps = fewer patch errors.
-- Flag core changes honestly — this triggers human review.
-- If the task is ambiguous, say so in risk_notes.
-- Never suggest changes outside the task scope.
-- Consider test strategy for every plan.
-- DO NOT add steps to run tests, formatters, or CLI commands. You only plan file creations, modifications, and deletions.
+- Be precise about file paths. Use the file context provided (playbooks, runbooks, configs, scripts).
+- MAX 2 FILES MODIFIED PER PLAN. If the incident requires more, isolate the highest-priority action.
+- Keep steps minimal. SOC/NOC responders need clarity under pressure.
+- Flag core changes honestly — firewall rules, critical configs trigger human review.
+- If the task is ambiguous (alert fatigue, noisy signal), say so in risk_notes.
+- Never suggest changes outside the incident scope.
+- test_strategy = how to validate the response (dry-run, canary, rollback plan).
+- DO NOT add steps to run monitors or CLI commands. You only plan file creations, modifications, deletions.
 - Every step MUST have at least one valid file path in the 'files' array.
 """
 
@@ -104,7 +108,7 @@ Rules:
             for fname, content in context.file_context.items():
                 file_context += f"\n--- {fname} ---\n{content}\n"
 
-        user_content = f"""Task: {context.objective}
+        user_content = f"""Incident/Alert/Ticket: {context.objective}
 
 Repository: {context.repo_path}
 Task ID: {context.task_id}
@@ -127,7 +131,7 @@ Produce your execution plan as JSON."""
         # Strip markdown code fences if present (fallback in case LLM ignores json_object instructions)
         if content.startswith("```"):
             lines = content.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```") and not l.strip().lower() == "json"]
+            lines = [ln for ln in lines if not ln.strip().startswith("```") and ln.strip().lower() != "json"]
             content = "\n".join(lines)
 
         try:

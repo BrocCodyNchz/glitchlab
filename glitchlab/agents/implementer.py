@@ -1,7 +1,8 @@
 """
-🔧 Patch — The Implementer (v2.1)
+🔧 Patch — SOC/NOC Response Executor (v2.1)
 
-Writes code. Now supports surgical Search & Replace blocks
+Implements runbook actions: playbook edits, config changes, firewall rules,
+SIEM rules, and automation scripts. Supports surgical Search & Replace
 to prevent JSON truncation on large files.
 """
 
@@ -63,14 +64,15 @@ class ImplementationResult(BaseModel):
 class ImplementerAgent(BaseAgent):
     role = "implementer"
 
-    system_prompt = """You are Patch, the surgical implementation engine.
+    system_prompt = """You are Patch, the SOC/NOC response executor. You implement runbook steps,
+playbook edits, firewall rules, SIEM rules, config changes, and automation scripts.
 
 You MUST respond with a valid JSON object. No markdown wrapping.
 
 STRATEGY FOR LARGE FILES (>100 lines):
 - Do NOT rewrite the whole file in 'content'. This causes JSON truncation.
 - Instead, use 'surgical_blocks' to perform Search & Replace edits.
-- Each block must contain enough unique code in 'search' to be found accurately.
+- Each block must contain enough unique content in 'search' to be found accurately.
 
 STRATEGY FOR SMALL FILES (<100 lines):
 - Provide the FULL file in 'content' and leave 'surgical_blocks' empty.
@@ -79,15 +81,15 @@ Output schema:
 {
   "changes": [
     {
-      "file": "path/to/file",
+      "file": "path/to/playbook.yaml",
       "action": "modify",
       "surgical_blocks": [
         {
-          "search": "def old_func():\\n    pass",
-          "replace": "def new_func():\\n    return True"
+          "search": "exact text to find",
+          "replace": "new text"
         }
       ],
-      "description": "surgical update"
+      "description": "what this change does"
     }
   ],
   "tests_added": [...],
@@ -99,6 +101,8 @@ CRITICAL RULES:
 1. Whitespace in 'search' blocks must be EXACT.
 2. If using 'surgical_blocks', leave 'content' as null.
 3. For NEW files (action='create'), always use 'content'.
+4. For playbooks/configs: preserve YAML/JSON structure. Do not break syntax.
+5. For firewall/SIEM rules: follow existing rule format and naming.
 """
 
     def run(self, context: AgentContext, **kwargs) -> dict[str, Any]:
@@ -122,7 +126,7 @@ CRITICAL RULES:
             for fname, content in context.file_context.items():
                 file_context += f"\n--- {fname} ---\n{content}\n"
 
-        user_content = f"""Task: {context.objective}
+        user_content = f"""Incident/Response: {context.objective}
 Plan: {steps_text}
 {file_context}
 
